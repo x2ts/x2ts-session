@@ -37,7 +37,7 @@ class Session extends Token {
 
     private static $sessionId;
     public static function getInstance(array $args, array $conf, string $confHash) {
-        $token = (string) $args[0] ?? '';
+        $token = (string) ($args[0] ?? '');
         $action = X::router()->action;
         $sessionId = '';
         if ($token) {
