@@ -57,7 +57,7 @@ class Session extends Token {
             Toolkit::trace("SessionId from cookie: $sessionId");
         }
 
-        $session = parent::getInstance($args, $conf, $confHash);
+        $session = parent::getInstance([$sessionId], $conf, $confHash);
         if (!$sessionId) {
             $action->setCookie(
                 static::$_conf['cookie']['name'],
