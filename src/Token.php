@@ -88,6 +88,9 @@ class Token extends Component {
         if ($t instanceof Token) {
             $t->_confHash = $that->_confHash;
             $t->config = $that->config;
+            if (empty($t->expireIn)) {
+                $t->expireIn($that->config['expireIn']);
+            }
             $that->isDestroy = true;
             return self::$_tokens["$t"] = $t;
         }
@@ -98,7 +101,7 @@ class Token extends Component {
     }
 
     public function __sleep() {
-        return ['data'];
+        return ['data', 'expireIn'];
     }
 
     public function expireIn(int $seconds) {
