@@ -52,8 +52,25 @@ class Token extends Component {
      */
     private static $_tokens = [];
 
-    public static function getInstance(array $args, array $conf, string$confHash) {
+    private $config = [];
+
+    public function getConf() {
+        if (count($this->config)) {
+            return $this->config;
+        }
+        return Configuration::$configuration[$this->getConfHash()] ?? [];
+    }
+
+    public function saveConf(array $conf, string $hash) {
+        Toolkit::override($this->config, static::$_conf);
+        Toolkit::override($this->config, $conf);
+        Configuration::$configuration[$hash] = $this->config;
+        $this->_confHash = $hash;
+    }
+
+    public static function getInstance(array $args, array $conf, string $confHash) {
         $token = $args[0] ?? '';
+        /** @var Token $that */
         $that = new static();
         $that->saveConf($conf, $confHash);
         if ('' === $token) {
@@ -145,7 +162,9 @@ class Token extends Component {
         $getter = Toolkit::toCamelCase("get $name");
         if (method_exists($this, $getter)) {
             return $this->$getter();
-        } else if (array_key_exists($name, $this->data)) {
+        }
+
+        if (array_key_exists($name, $this->data)) {
             return $this->get($name);
         }
         return null;
