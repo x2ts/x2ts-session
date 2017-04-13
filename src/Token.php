@@ -54,6 +54,8 @@ class Token extends Component {
 
     private $config = [];
 
+    protected function __construct() { }
+
     public function getConf() {
         if (count($this->config)) {
             return $this->config;
@@ -84,6 +86,8 @@ class Token extends Component {
         $that->token = $token;
         $t = $that->saver->get($that->saveKey());
         if ($t instanceof Token) {
+            $t->_confHash = $that->_confHash;
+            $t->config = $that->config;
             $that->isDestroy = true;
             return self::$_tokens["$t"] = $t;
         }
@@ -91,6 +95,10 @@ class Token extends Component {
         $that->data = [];
         $that->expireIn = $that->conf['expireIn'];
         return self::$_tokens["$that"] = $that;
+    }
+
+    public function __sleep() {
+        return ['data'];
     }
 
     public function expireIn(int $seconds) {
