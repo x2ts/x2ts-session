@@ -36,6 +36,7 @@ class Session extends Token {
     ];
 
     private static $sessionId;
+
     public static function getInstance(array $args, array $conf, string $confHash) {
         $token = (string) ($args[0] ?? '');
         $action = X::router()->action;
@@ -58,10 +59,13 @@ class Session extends Token {
         }
 
         $session = parent::getInstance([$sessionId], $conf, $confHash);
+        if (null === self::$sessionId) {
+            self::$sessionId = (string) $session;
+        }
         if (!$sessionId) {
             $action->setCookie(
                 static::$_conf['cookie']['name'],
-                self::$sessionId = (string) $session,
+                self::$sessionId,
                 static::$_conf['cookie']['expireIn'] ?
                     time() + static::$_conf['cookie']['expireIn'] : null,
                 static::$_conf['cookie']['path'],
