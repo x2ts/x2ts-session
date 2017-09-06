@@ -48,7 +48,12 @@ class Token extends Component {
     protected $expireIn = 0;
 
     /**
-     * @var array
+     * @var int
+     */
+    protected $expireAt = 0;
+
+    /**
+     * @var Token[]
      */
     private static $_tokens = [];
 
@@ -81,7 +86,11 @@ class Token extends Component {
         }
 
         if (array_key_exists($token, self::$_tokens) && self::$_tokens[$token] instanceof Token) {
-            return self::$_tokens[$token];
+            if (time() < self::$_tokens[$token]->expireAt) {
+                return self::$_tokens[$token];
+            } else {
+                unset(self::$_tokens[$token]);
+            }
         }
         $that->token = $token;
         $t = $that->saver->get($that->saveKey());
@@ -118,6 +127,7 @@ class Token extends Component {
 
     public function save() {
         if (!$this->isDestroy && $this->expireIn) {
+            $this->expireAt = time() + $this->expireIn;
             $this->saver->set($this->saveKey(), $this, $this->expireIn);
             return true;
         }
@@ -144,6 +154,7 @@ class Token extends Component {
 
     public function destroy() {
         $this->isDestroy = true;
+        unset(self::$_tokens[$this->token]);
         $this->saver->remove($this->saveKey());
         return $this;
     }

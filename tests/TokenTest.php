@@ -32,5 +32,16 @@ class TokenTest extends TestCase {
         $token = S::token('abcdefg');
         $token->set('abc', 'name');
         $token->save();
+        self::assertEquals('name', S::token('abcdefg')->get('abc'));
+    }
+
+    public function testDestory() {
+        $token = S::token();
+        $tok = (string) $token;
+        $token->set('abc', 'name');
+        $token->save();
+        $token->destroy();
+
+        self::assertFalse(S::token($tok)->isset('abc'));
     }
 }
