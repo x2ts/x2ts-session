@@ -6,4 +6,5 @@ services:
   - docker
 before_script:
   - docker run -d --rm -p 127.0.0.1:6379:6379 --name redis redis:3-alpine
+  - phpenv config-add redis.ini
   - composer install
