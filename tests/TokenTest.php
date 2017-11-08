@@ -44,4 +44,13 @@ class TokenTest extends TestCase {
 
         self::assertFalse(S::token($tok)->isset('abc'));
     }
+
+    public function testRemoveTokenCache() {
+        $token = S::token();
+        $tok = (string) $token;
+        $token->set('abc', 'name');
+        Token::removeTokenCache($tok);
+        $token = S::token($tok);
+        self::assertFalse($token->isset('abc'));
+    }
 }
