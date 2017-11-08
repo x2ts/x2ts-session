@@ -25,6 +25,7 @@ class Token extends Component {
         'tokenLength'     => 16,
         'autoSave'        => true,
         'expireIn'        => 300,
+        'varCache'        => true,
     ];
 
     /**
@@ -80,12 +81,18 @@ class Token extends Component {
         /** @var Token $that */
         $that = new static();
         $that->saveConf($conf, $confHash);
+        $varCache = $that->conf['varCache'];
         if ('' === $token) {
             $that->clean();
-            return self::$_tokens["$that"] = $that;
+            if ($varCache) {
+                self::$_tokens["$that"] = $that;
+            }
+            return $that;
         }
 
-        if (array_key_exists($token, self::$_tokens) && self::$_tokens[$token] instanceof Token) {
+        if ($varCache && isset(self::$_tokens[$token]) &&
+            self::$_tokens[$token] instanceof Token
+        ) {
             if (time() < self::$_tokens[$token]->expireAt) {
                 return self::$_tokens[$token];
             } else {
@@ -98,12 +105,28 @@ class Token extends Component {
             $t->_confHash = $that->_confHash;
             $t->config = $that->config;
             $that->isDestroy = true;
-            return self::$_tokens["$t"] = $t;
+            if ($varCache) {
+                self::$_tokens["$t"] = $t;
+            }
+            return $t;
         }
 
         $that->data = [];
         $that->expireIn = $that->conf['expireIn'];
-        return self::$_tokens["$that"] = $that;
+        if ($varCache) {
+            self::$_tokens["$that"] = $that;
+        }
+        return $that;
+    }
+
+    public static function removeTokenCache(string ...$tokens) {
+        if (count($tokens) === 0) {
+            self::$_tokens = [];
+        } else {
+            foreach ($tokens as $token) {
+                unset(self::$_tokens[$token]);
+            }
+        }
     }
 
     public function __sleep() {
