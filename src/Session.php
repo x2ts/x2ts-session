@@ -25,6 +25,7 @@ class Session extends Token {
         'tokenLength'     => 16,
         'autoSave'        => true,
         'expireIn'        => 604800,
+        'varCache'        => true,
         'cookie'          => [
             'name'     => 'X_SESSION_ID',
             'expireIn' => null,
