@@ -85,7 +85,7 @@ class Token extends Component {
         if ('' === $token) {
             $that->clean();
             if ($varCache) {
-                self::$_tokens["$that"] = $that;
+                self::$_tokens[$that->token] = $that;
             }
             return $that;
         }
@@ -95,9 +95,9 @@ class Token extends Component {
         ) {
             if (time() < self::$_tokens[$token]->expireAt) {
                 return self::$_tokens[$token];
-            } else {
-                unset(self::$_tokens[$token]);
             }
+
+            unset(self::$_tokens[$token]);
         }
         $that->token = $token;
         $t = $that->saver->get($that->saveKey());
@@ -106,7 +106,7 @@ class Token extends Component {
             $t->config = $that->config;
             $that->isDestroy = true;
             if ($varCache) {
-                self::$_tokens["$t"] = $t;
+                self::$_tokens[$t->token] = $t;
             }
             return $t;
         }
@@ -114,7 +114,7 @@ class Token extends Component {
         $that->data = [];
         $that->expireIn = $that->conf['expireIn'];
         if ($varCache) {
-            self::$_tokens["$that"] = $that;
+            self::$_tokens[$that->token] = $that;
         }
         return $that;
     }

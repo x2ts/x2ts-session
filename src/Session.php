@@ -50,44 +50,51 @@ class Session extends Token {
             @list ($method, $data) = explode(' ', $auth, 2);
             if (strtolower($method) === 'token' && $data) {
                 $sessionId = $data;
-                Toolkit::trace("SessionId from token: $sessionId");
+                X::logger()->trace("SessionId from token: $sessionId");
             }
         }
 
-        if (!$sessionId) {
-            $sessionId = $action->cookie(static::$_conf['cookie']['name'], '');
-            Toolkit::trace("SessionId from cookie: $sessionId");
+        if (!$sessionId && $conf['cookie'] !== false) {
+            $sessionId = $action->cookie(
+                $conf['cookie']['name']
+                ?? static::$_conf['cookie']['name'],
+                ''
+            );
+            X::logger()->trace("SessionId from cookie: $sessionId");
         }
 
         $session = parent::getInstance([$sessionId], $conf, $confHash);
         if (null === self::$sessionId) {
             self::$sessionId = (string) $session;
         }
-        if (!$sessionId) {
+        if (!$sessionId && $session->conf['cookie'] !== false) {
             $action->setCookie(
-                static::$_conf['cookie']['name'],
+                $session->conf['cookie']['name'],
                 self::$sessionId,
-                static::$_conf['cookie']['expireIn'] ?
-                    time() + static::$_conf['cookie']['expireIn'] : null,
-                static::$_conf['cookie']['path'],
-                static::$_conf['cookie']['domain'],
-                static::$_conf['cookie']['secure'],
-                static::$_conf['cookie']['httpOnly']
+                $session->conf['cookie']['expireIn'] ?
+                    time() + $session->conf['cookie']['expireIn'] : null,
+                $session->conf['cookie']['path'],
+                $session->conf['cookie']['domain'],
+                $session->conf['cookie']['secure'],
+                $session->conf['cookie']['httpOnly']
             );
         }
         return $session;
     }
 
     public function destroy() {
-        X::router()->action->setCookie(
-            static::$_conf['cookie']['name'],
-            '',
-            strtotime('1997-07-01 00:00:00 GMT+0800'),
-            static::$_conf['cookie']['path'],
-            static::$_conf['cookie']['domain'],
-            static::$_conf['cookie']['secure'],
-            static::$_conf['cookie']['httpOnly']
-        );
+        if ($this->conf['cookie'] !== false) {
+            X::router()->action->setCookie(
+                $this->conf['cookie']['name'],
+                '',
+                strtotime('1997-07-01 00:00:00 GMT+0800'),
+                $this->conf['cookie']['path'],
+                $this->conf['cookie']['domain'],
+                $this->conf['cookie']['secure'],
+                $this->conf['cookie']['httpOnly']
+            );
+            unset($_COOKIE[$this->conf['cookie']['name']]);
+        }
         parent::destroy();
     }
 
