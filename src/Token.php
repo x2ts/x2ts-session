@@ -63,7 +63,7 @@ class Token extends Component {
     protected function __construct() { }
 
     public function getConf() {
-        if (count($this->config)) {
+        if (\count($this->config)) {
             return $this->config;
         }
         return Configuration::$configuration[$this->getConfHash()] ?? [];
@@ -228,6 +228,14 @@ class Token extends Component {
 
     public function __unset($name) {
         $this->del($name);
+    }
+
+    public static function __set_state($state) {
+        $token = new static();
+        foreach ($state as $key => $value) {
+            $token->$key = $value;
+        }
+        return $token;
     }
 
     public function getSaver(): ICache {
